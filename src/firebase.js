@@ -17,6 +17,7 @@ export const firebaseConfigured = Boolean(config.apiKey && config.projectId);
 
 const app = firebaseConfigured && !DEMO ? initializeApp(config) : null;
 export const auth = app ? getAuth(app) : null;
+if (auth) auth.languageCode = 'fr';
 export const db = app
   ? initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) })
   : null;

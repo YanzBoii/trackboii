@@ -24,7 +24,7 @@ export default function DemoProvider({ children }) {
 
   const value = useMemo(() => ({
     user: { uid: 'demo', email: 'demo@trackboii.app', getIdToken: async () => '' },
-    profile, meals, presets, weights, today,
+    verified: true, profile, meals, presets, weights, today,
     todayMeals: meals.filter(m => m.date === today),
     saveProfile: d => { setProfile(p => ({ ...p, ...d })); return ok(); },
     addMeal: m => { setMeals(s => [...s, { id: String(Date.now()), date: today, ...m }]); return ok(); },

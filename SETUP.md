@@ -63,4 +63,4 @@ Pour voir l'interface sans Firebase ni IA (données fictives) : `npx vite --mode
 ## Changer de modèle IA
 
 Variable optionnelle `GEMINI_MODELS` (liste séparée par des virgules, essayée dans l'ordre si quota atteint) :
-`GEMINI_MODELS=gemini-3.8-flash,gemini-3.5-flash-lite`
+`GEMINI_MODELS=gemini-3.8-flash,gemini-3.7-flash,gemini-3.5-flash-lite`

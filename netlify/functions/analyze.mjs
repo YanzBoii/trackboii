@@ -12,7 +12,7 @@ async function verifyUser(req) {
   if (!projectId || !token) return null;
   try {
     const { payload } = await jwtVerify(token, JWKS, { issuer: `https://securetoken.google.com/${projectId}`, audience: projectId });
-    return payload.sub || null;
+    return payload.email_verified ? payload.sub : null;
   } catch {
     return null;
   }
@@ -42,7 +42,7 @@ export default async (req) => {
   if (req.method !== 'POST') return json(405, { error: 'Méthode non autorisée' });
   const key = process.env.GEMINI_API_KEY;
   if (!key) return json(500, { error: 'GEMINI_API_KEY manquante côté serveur' });
-  if (!(await verifyUser(req))) return json(401, { error: 'Non connecté' });
+  if (!(await verifyUser(req))) return json(401, { error: 'Non connecté ou email non vérifié' });
 
   let body;
   try { body = await req.json(); } catch { return json(400, { error: 'JSON invalide' }); }
@@ -54,7 +54,7 @@ export default async (req) => {
   if (image) parts.push({ inline_data: { mime_type: mimeType, data: image } });
   parts.push({ text: buildPrompt({ name: String(name).slice(0, 200), weight: String(weight).slice(0, 10), ingredients: String(ingredients).slice(0, 1000), hasImage: !!image }) });
 
-  const models = (process.env.GEMINI_MODELS || 'gemini-3.8-flash,gemini-3.5-flash-lite').split(',').map(s => s.trim()).filter(Boolean);
+  const models = (process.env.GEMINI_MODELS || 'gemini-3.8-flash,gemini-3.7-flash,gemini-3.5-flash-lite').split(',').map(s => s.trim()).filter(Boolean);
   let last;
   for (const model of models) {
     try {

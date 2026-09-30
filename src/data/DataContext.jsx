@@ -30,15 +30,17 @@ export function DataProvider({ children }) {
   const [meals, setMeals] = useState([]);
   const [presets, setPresets] = useState([]);
   const [weights, setWeights] = useState([]);
+  const [verified, setVerified] = useState(false);
   const today = useToday();
 
   useEffect(() => onAuthStateChanged(auth, u => {
     setUser(u);
+    setVerified(!!u?.emailVerified);
     if (!u) { setProfile(undefined); setMeals([]); setPresets([]); setWeights([]); }
   }), []);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !verified) return;
     const base = `users/${user.uid}`;
     const snapList = (snap) => snap.docs.map(d => ({ id: d.id, ...d.data() }));
     const unsubs = [
@@ -49,13 +51,21 @@ export function DataProvider({ children }) {
       onSnapshot(collection(db, base, 'weights'), s => setWeights(snapList(s).sort((a, b) => a.date.localeCompare(b.date))))
     ];
     return () => unsubs.forEach(u => u());
-  }, [user, today]);
+  }, [user, verified, today]);
 
   const value = useMemo(() => {
     const base = user ? `users/${user.uid}` : null;
     const col = name => collection(db, base, name);
     return {
-      user, profile, meals, presets, weights, today,
+      user, verified, profile, meals, presets, weights, today,
+      /** Recharge l'utilisateur après clic sur le lien de vérification (et rafraîchit le token pour Firestore). */
+      checkVerified: async () => {
+        await auth.currentUser.reload();
+        if (!auth.currentUser.emailVerified) return false;
+        await auth.currentUser.getIdToken(true);
+        setVerified(true);
+        return true;
+      },
       todayMeals: meals.filter(m => m.date === today),
       saveProfile: data => setDoc(doc(db, base), data, { merge: true }),
       addMeal: meal => addDoc(col('meals'), { date: today, ...meal, createdAt: serverTimestamp() }),
@@ -66,7 +76,7 @@ export function DataProvider({ children }) {
       addWeight: kg => setDoc(doc(db, base, 'weights', today), { date: today, kg }),
       logout: () => signOut(auth)
     };
-  }, [user, profile, meals, presets, weights, today]);
+  }, [user, verified, profile, meals, presets, weights, today]);
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 }

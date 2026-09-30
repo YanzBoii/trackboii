@@ -3,6 +3,7 @@ import { DEMO, firebaseConfigured } from './firebase.js';
 import { useData } from './data/DataContext.jsx';
 import Shell from './components/Shell.jsx';
 import Auth from './screens/Auth.jsx';
+import VerifyEmail from './screens/VerifyEmail.jsx';
 import Onboarding from './screens/Onboarding.jsx';
 import Plan from './screens/Plan.jsx';
 import Today from './screens/Today.jsx';
@@ -19,7 +20,7 @@ const Splash = () => <div className="center-screen"><div className="spinner" sty
 const BARE = ['/bienvenue', '/plan'];
 
 export default function App() {
-  const { user, profile } = useData() || {};
+  const { user, verified, profile } = useData() || {};
   const { pathname } = useLocation();
 
   if (!firebaseConfigured && !DEMO) {
@@ -32,6 +33,7 @@ export default function App() {
   }
   if (user === undefined) return <Splash />;
   if (!user) return <Shell bare><Auth /></Shell>;
+  if (!verified) return <Shell bare><VerifyEmail /></Shell>;
   if (profile === undefined) return <Splash />;
 
   if (!profile?.onboarded) {

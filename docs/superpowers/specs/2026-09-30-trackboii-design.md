@@ -6,7 +6,7 @@ PWA de suivi calorique : photo du plat (+ nom / poids / ingrédients optionnels)
 ## Stack
 - React 18 + Vite + vite-plugin-pwa, react-router (BrowserRouter, redirect SPA Netlify).
 - Firebase Auth (email/mot de passe + Google) et Firestore (cache offline persistant).
-- Netlify Function `POST /api/analyze` → API Gemini (offre gratuite). Modèle(s) configurables via `GEMINI_MODELS` (liste, fallback sur 429/5xx). Défaut : `gemini-3.8-flash,gemini-3.5-flash-lite`.
+- Netlify Function `POST /api/analyze` → API Gemini (offre gratuite). Modèle(s) configurables via `GEMINI_MODELS` (liste, fallback sur 429/5xx). Défaut : `gemini-3.8-flash,gemini-3.7-flash,gemini-3.5-flash-lite`.
 - La fonction vérifie le Firebase ID token (JWKS Google via `jose`) : seul un utilisateur connecté consomme le quota.
 
 ## Données Firestore

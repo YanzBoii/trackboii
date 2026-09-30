@@ -1,6 +1,7 @@
 {
   "version": "0.0.1",
   "configurations": [
-    { "name": "demo", "runtimeExecutable": "npx", "runtimeArgs": ["vite", "--port", "5174", "--mode", "demo"], "port": 5174 }
+    { "name": "demo", "runtimeExecutable": "npx", "runtimeArgs": ["vite", "--port", "5174", "--mode", "demo"], "port": 5174 },
+    { "name": "netlify", "runtimeExecutable": "npx", "runtimeArgs": ["netlify", "dev", "--port", "8888", "--no-open"], "port": 8888 }
   ]
 }

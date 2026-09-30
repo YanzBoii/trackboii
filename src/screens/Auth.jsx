@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  GoogleAuthProvider, createUserWithEmailAndPassword, sendPasswordResetEmail,
+  GoogleAuthProvider, createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail,
   signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, updateProfile
 } from 'firebase/auth';
 import { auth } from '../firebase.js';
@@ -38,6 +38,7 @@ export default function Auth() {
       } else {
         const { user } = await createUserWithEmailAndPassword(auth, email.trim(), password);
         await updateProfile(user, { displayName: name.trim() });
+        await sendEmailVerification(user);
       }
     } catch (err) {
       setError(message(err));
