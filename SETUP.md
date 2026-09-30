@@ -64,3 +64,11 @@ Pour voir l'interface sans Firebase ni IA (données fictives) : `npx vite --mode
 
 Variable optionnelle `GEMINI_MODELS` (liste séparée par des virgules, essayée dans l'ordre si quota atteint) :
 `GEMINI_MODELS=gemini-3.8-flash,gemini-3.7-flash,gemini-3.5-flash-lite`
+
+## Mettre à jour le site en ligne
+
+Le dossier est déjà lié au site Netlify `trackboii` (https://trackboii.netlify.app). Après une modification :
+
+```bash
+npm run deploy
+```

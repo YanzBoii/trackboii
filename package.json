@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "deploy": "netlify deploy --prod --build",
     "icons": "pwa-assets-generator --preset minimal-2023 public/icon.svg"
   },
   "dependencies": {
