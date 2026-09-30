@@ -4,3 +4,6 @@ dist
 .env.local
 .netlify
 _design
+
+# Netlify local
+deno.lock

@@ -2,25 +2,37 @@ import { useEffect, useState } from 'react';
 import { sendEmailVerification } from 'firebase/auth';
 import { useData } from '../data/DataContext.jsx';
 import { useUi } from '../data/UiContext.jsx';
-import { Logo } from '../components/ui.jsx';
+import { IC, Icon } from '../components/ui.jsx';
+
+const MAIL = 'M4 6h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1zm-1 1 9 6 9-6';
+const COOLDOWN = 60;
+const STEPS = ['Ouvre le mail de TrackBoii (regarde aussi dans les spams)', 'Clique sur le lien de validation', 'Reviens ici : ça continue tout seul'];
 
 export default function VerifyEmail() {
   const { user, checkVerified, logout } = useData();
   const { showToast } = useUi();
   const [busy, setBusy] = useState(false);
+  const [wait, setWait] = useState(0);
 
-  // Vérifie automatiquement quand on revient sur l'app après avoir cliqué le lien
+  // Vérifie en arrière-plan : au retour sur l'onglet et toutes les 5 s
   useEffect(() => {
-    const onFocus = () => { if (document.visibilityState === 'visible') checkVerified().catch(() => {}); };
-    document.addEventListener('visibilitychange', onFocus);
-    window.addEventListener('focus', onFocus);
-    return () => { document.removeEventListener('visibilitychange', onFocus); window.removeEventListener('focus', onFocus); };
+    const poll = () => { if (document.visibilityState === 'visible') checkVerified().catch(() => {}); };
+    const id = setInterval(poll, 5000);
+    document.addEventListener('visibilitychange', poll);
+    window.addEventListener('focus', poll);
+    return () => { clearInterval(id); document.removeEventListener('visibilitychange', poll); window.removeEventListener('focus', poll); };
   }, [checkVerified]);
+
+  useEffect(() => {
+    if (!wait) return;
+    const id = setTimeout(() => setWait(w => w - 1), 1000);
+    return () => clearTimeout(id);
+  }, [wait]);
 
   const check = async () => {
     setBusy(true);
     try {
-      if (!(await checkVerified())) showToast('Email pas encore vérifié');
+      if (!(await checkVerified())) showToast("Email pas encore validé");
     } catch {
       showToast('Pas de connexion internet');
     } finally {
@@ -31,23 +43,51 @@ export default function VerifyEmail() {
   const resend = async () => {
     try {
       await sendEmailVerification(user);
+      setWait(COOLDOWN);
       showToast('Email renvoyé');
     } catch (e) {
+      if (e.code === 'auth/too-many-requests') setWait(COOLDOWN);
       showToast(e.code === 'auth/too-many-requests' ? 'Attends un peu avant de renvoyer' : 'Envoi impossible, réessaie');
     }
   };
 
   return (
     <div className="narrow full-h col gap16" style={{ justifyContent: 'center' }}>
-      <Logo size={48} text={26} />
-      <h1 className="big">Vérifie ton adresse email</h1>
-      <div style={{ fontSize: 16, color: 'var(--mute)', lineHeight: 1.45 }}>
-        On a envoyé un lien à <strong style={{ color: 'var(--ink)' }}>{user.email}</strong>. Clique dessus, puis reviens ici.
-        Pense à regarder dans les spams.
+      <div className="welcome-art glass" style={{ height: 230 }}>
+        <div style={{ position: 'absolute', width: 220, height: 220, borderRadius: '50%', background: 'var(--accent)', filter: 'blur(70px)', opacity: 0.35 }} />
+        <div className="plate" style={{ width: 150, height: 150 }}>
+          <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', color: 'var(--accent)' }}>
+            <div className="verify-mail"><Icon d={MAIL} size={40} width={1.6} /><span className="verify-dot" /></div>
+          </div>
+        </div>
       </div>
-      <button className="btn btn-primary" onClick={check} disabled={busy}>{busy ? 'Vérification…' : "C'est fait, continuer"}</button>
-      <button className="btn btn-ghost" onClick={resend}>Renvoyer l'email</button>
-      <button className="link" style={{ alignSelf: 'center' }} onClick={logout}>Utiliser une autre adresse</button>
+
+      <div className="col gap6">
+        <h1 className="big">Vérifie ton adresse email</h1>
+        <div style={{ fontSize: 16, color: 'var(--mute)', lineHeight: 1.45 }}>Un lien de validation vient de partir. Un clic dessus et c'est bon.</div>
+      </div>
+
+      <div className="glass r20 row gap12" style={{ padding: '12px 14px' }}>
+        <div className="coach-ic"><Icon d={MAIL} size={17} /></div>
+        <div className="grow" style={{ fontSize: 15, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</div>
+        <div className="row gap6 small nowrap"><span className="pulse" />En attente</div>
+      </div>
+
+      <div className="glass col gap12" style={{ padding: '16px 18px', borderRadius: 22 }}>
+        {STEPS.map((s, i) => (
+          <div key={s} className="row gap12" style={{ fontSize: 14, lineHeight: 1.35 }}>
+            <div className="step-num">{i + 1}</div>{s}
+          </div>
+        ))}
+      </div>
+
+      <button className="btn btn-primary split" style={{ padding: '18px 24px' }} onClick={check} disabled={busy}>
+        <span>{busy ? 'Vérification…' : "J'ai validé mon email"}</span><Icon d={IC.next} />
+      </button>
+      <button className="btn btn-ghost" onClick={resend} disabled={wait > 0}>
+        {wait > 0 ? `Renvoyer l'email (${wait} s)` : "Renvoyer l'email"}
+      </button>
+      <button className="link" style={{ alignSelf: 'center', color: 'var(--mute)' }} onClick={logout}>Utiliser une autre adresse</button>
     </div>
   );
 }
