@@ -19,7 +19,7 @@ input::placeholder,textarea::placeholder{color:var(--mute2)}
 .grain{position:absolute;inset:0;background-image:url(/grain.svg);opacity:var(--grain-o);mix-blend-mode:var(--grain-b);pointer-events:none}
 .layout{position:relative;z-index:1;display:flex;height:100%}
 .main{flex:1;min-width:0;height:100%;overflow-y:auto;position:relative;scrollbar-width:none}
-.container{max-width:1120px;margin:0 auto;padding:calc(24px + env(safe-area-inset-top)) 20px 40px}
+.container{max-width:1120px;margin:0 auto;padding:calc(24px + env(safe-area-inset-top)) max(20px,env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) max(20px,env(safe-area-inset-left))}
 .container.with-tab{padding-bottom:calc(130px + env(safe-area-inset-bottom))}
 .stack{display:flex;flex-direction:column;gap:20px}
 .col{display:flex;flex-direction:column}
@@ -32,11 +32,11 @@ input::placeholder,textarea::placeholder{color:var(--mute2)}
 .span-all{grid-column:1/-1}
 .narrow{max-width:540px;margin:0 auto;width:100%}
 .narrow-620{max-width:620px;margin:0 auto;width:100%}
-.full-h{min-height:calc(100dvh - 64px - env(safe-area-inset-top))}
+.full-h{min-height:calc(100dvh - 64px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}
 @media (min-width:860px){.full-h{min-height:calc(100dvh - 80px)}}
 @media (min-width:860px){
-  .container{padding:40px 40px 40px}
-  .container.with-tab{padding-bottom:40px}
+  .container{padding:calc(40px + env(safe-area-inset-top)) max(40px,env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) max(40px,env(safe-area-inset-left))}
+  .container.with-tab{padding-bottom:calc(40px + env(safe-area-inset-bottom))}
   .grid-main{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}
   .grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
   .mobile-only{display:none!important}
@@ -108,7 +108,7 @@ textarea.input{min-height:96px;resize:vertical}
 .bar.lg{height:8px}.bar.md{height:6px}
 
 /* ---------- sidebar & tabbar ---------- */
-.side{width:252px;flex:none;height:100%;padding:28px 16px;display:flex;flex-direction:column;gap:4px;background:var(--side);border-right:1px solid var(--glass-b);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px)}
+.side{width:calc(252px + env(safe-area-inset-left));flex:none;height:100%;padding:calc(28px + env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));display:flex;flex-direction:column;gap:4px;background:var(--side);border-right:1px solid var(--glass-b);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px)}
 .logo{display:flex;align-items:center;gap:10px}
 .logo-mark{width:36px;height:36px;border-radius:11px;background:var(--hero);display:grid;place-items:center;flex:none}
 .logo-mark>div{width:56%;height:56%;border-radius:50%;background:conic-gradient(#9fc0ff 0 72%,rgba(255,255,255,.18) 0);display:grid;place-items:center}
@@ -116,7 +116,7 @@ textarea.input{min-height:96px;resize:vertical}
 .logo-text{font-size:22px;font-weight:600;letter-spacing:-.03em}
 .nav-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;cursor:pointer;font-size:15px;color:var(--ink);text-decoration:none}
 .nav-item.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
-.tabbar{position:absolute;left:16px;right:16px;bottom:calc(22px + env(safe-area-inset-bottom));z-index:10;display:flex;justify-content:space-around;align-items:center;padding:9px;border-radius:32px;background:var(--nav);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border:1px solid var(--glass-b);box-shadow:var(--shadow);max-width:520px;margin:0 auto}
+.tabbar{position:absolute;left:max(16px,env(safe-area-inset-left));right:max(16px,env(safe-area-inset-right));bottom:calc(22px + env(safe-area-inset-bottom));z-index:10;display:flex;justify-content:space-around;align-items:center;padding:9px;border-radius:32px;background:var(--nav);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border:1px solid var(--glass-b);box-shadow:var(--shadow);max-width:520px;margin:0 auto}
 .tab{cursor:pointer;width:48px;height:48px;display:grid;place-items:center;color:var(--mute2);background:none;border:0}
 .tab.on{color:var(--accent)}
 .fab{cursor:pointer;width:58px;height:58px;border-radius:50%;background:var(--hero);color:#fff;display:grid;place-items:center;box-shadow:0 8px 24px rgba(47,107,255,.45);border:0}
