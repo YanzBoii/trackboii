@@ -11,8 +11,8 @@ const config = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-/** Mode démo local sans Firebase (dev uniquement). */
-export const DEMO = import.meta.env.DEV && import.meta.env.VITE_DEMO === '1';
+/** Mode démo sans Firebase (`npm run demo`) : VITE_DEMO n'est défini que par .env.demo. */
+export const DEMO = import.meta.env.VITE_DEMO === '1';
 export const firebaseConfigured = Boolean(config.apiKey && config.projectId);
 
 const app = firebaseConfigured && !DEMO ? initializeApp(config) : null;

@@ -73,7 +73,7 @@ export default function Auth() {
   return (
     <div className="narrow full-h col gap16" style={{ justifyContent: 'center' }}>
       <div className="welcome-art glass" style={{ height: 200 }}>
-        <div style={{ position: 'absolute', width: 200, height: 200, borderRadius: '50%', background: 'var(--accent)', filter: 'blur(70px)', opacity: 0.35 }} />
+        <div className='glow' />
         <div className="plate" style={{ width: 130, height: 130 }} />
       </div>
       <Logo size={48} text={26} />

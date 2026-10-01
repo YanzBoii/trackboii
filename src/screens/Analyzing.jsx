@@ -38,7 +38,7 @@ export default function Analyzing() {
   return (
     <div className="col gap16" style={{ minHeight: 'calc(100dvh - 120px)', alignItems: 'center', justifyContent: 'center', gap: 24, textAlign: 'center' }}>
       <div style={{ position: 'relative', width: 180, height: 180, display: 'grid', placeItems: 'center' }}>
-        <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: 'var(--blob1)', filter: 'blur(40px)', opacity: 0.8 }} />
+        <div className='glow' style={{ inset: -40, background: 'radial-gradient(closest-side, var(--blob1), transparent)', opacity: 0.9 }} />
         <div className="spinner" style={{ position: 'relative' }} />
       </div>
       <div className="col gap6">

@@ -8,10 +8,12 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "demo": "vite --mode demo",
     "deploy": "netlify deploy --prod --build",
     "icons": "pwa-assets-generator --preset minimal-2023 public/icon.svg"
   },
   "dependencies": {
+    "@fontsource-variable/outfit": "^5.3.0",
     "firebase": "^12.19.0",
     "jose": "^6.2.12",
     "react": "^19.3.0",

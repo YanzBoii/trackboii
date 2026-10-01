@@ -54,7 +54,7 @@ export default function VerifyEmail() {
   return (
     <div className="narrow full-h col gap16" style={{ justifyContent: 'center' }}>
       <div className="welcome-art glass" style={{ height: 230 }}>
-        <div style={{ position: 'absolute', width: 220, height: 220, borderRadius: '50%', background: 'var(--accent)', filter: 'blur(70px)', opacity: 0.35 }} />
+        <div className='glow' />
         <div className="plate" style={{ width: 150, height: 150 }}>
           <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', color: 'var(--accent)' }}>
             <div className="verify-mail"><Icon d={MAIL} size={40} width={1.6} /><span className="verify-dot" /></div>

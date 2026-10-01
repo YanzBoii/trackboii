@@ -25,15 +25,25 @@ export default defineConfig({
         ]
       },
       workbox: {
-        navigateFallbackDenylist: [/^\/api\//, /^\/__\//],
-        runtimeCaching: [{
-          urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
-          handler: 'CacheFirst',
-          options: { cacheName: 'google-fonts', expiration: { maxEntries: 20, maxAgeSeconds: 31536000 } }
-        }]
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        globIgnores: ['**/DemoProvider-*.js'],
+        navigateFallbackDenylist: [/^\/api\//, /^\/__\//]
       }
     })
   ],
-  build: { chunkSizeWarningLimit: 1200 },
+  build: {
+    chunkSizeWarningLimit: 1200,
+    rolldownOptions: {
+      output: {
+        // Firebase dans son propre fichier : il change rarement, donc reste en cache entre deux mises à jour de l'app
+        codeSplitting: {
+          groups: [
+            { name: 'firebase', test: /node_modules[\\/]@?firebase/ },
+            { name: 'react', test: /node_modules[\\/](react|react-dom|react-router|react-router-dom|scheduler)[\\/]/ }
+          ]
+        }
+      }
+    }
+  },
   test: { environment: 'node' }
 });

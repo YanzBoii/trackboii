@@ -8,7 +8,7 @@ export const MOMENTS = { pdj: 'Petit-déj', dej: 'Déjeuner', din: 'Dîner', col
 export const MOMENT_PHRASE = { pdj: 'au petit-déj', dej: 'au déjeuner', din: 'au dîner', col: 'aux collations' };
 export const MOMENT_ADD = { pdj: 'le petit-déj', dej: 'le déjeuner', din: 'le dîner', col: 'une collation' };
 
-const emptyDraft = () => ({ photo: null, name: '', weight: '', ingredients: '', moment: momentForNow(), result: null });
+const emptyDraft = () => ({ mode: 'photo', photo: null, name: '', weight: '', ingredients: '', moment: momentForNow(), result: null });
 
 function readTheme() {
   try { return localStorage.getItem('tb-theme') || document.documentElement.dataset.theme || 'light'; } catch { return 'light'; }

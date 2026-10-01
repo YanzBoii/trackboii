@@ -65,7 +65,7 @@ export default function Shell({ children, bare = false }) {
       <div className="layout">
         {!bare && <Sidebar />}
         <main className="main" ref={scroll}>
-          <div className={`container ${withTab ? 'with-tab' : ''}`}>{children}</div>
+          <div className={`container ${withTab ? 'with-tab' : ''}`}><div key={pathname} className="page">{children}</div></div>
         </main>
       </div>
       {withTab && <TabBar />}

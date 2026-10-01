@@ -6,6 +6,8 @@ import { preparePhoto } from '../lib/image.js';
 import { usePresetAdder } from './Today.jsx';
 import { BackButton, IC, Icon, Seg, fmt } from '../components/ui.jsx';
 
+const EXAMPLES = ['2 œufs au plat et 2 tranches de jambon', 'Un kebab frites', 'Bol de céréales avec du lait'];
+
 export const EMPTY_RESULT = { name: '', weight: 0, ingredients: [], kcal: 0, p: 0, c: 0, f: 0, confidence: null, comment: '' };
 
 export default function Add() {
@@ -31,9 +33,11 @@ export default function Add() {
     }
   };
 
-  const canAnalyze = draft.photo || draft.name.trim() || draft.ingredients.trim();
+  const textMode = draft.mode === 'texte';
+  const canAnalyze = (!textMode && draft.photo) || draft.name.trim() || draft.ingredients.trim();
   const analyze = () => {
-    if (!canAnalyze) return showToast('Ajoute une photo ou décris ton plat');
+    if (!canAnalyze) return showToast(textMode ? 'Décris ce que tu as mangé' : 'Ajoute une photo ou décris ton plat');
+    if (textMode && draft.photo) patchDraft({ photo: null });
     navigate('/analyse');
   };
   const manual = () => {
@@ -52,16 +56,34 @@ export default function Add() {
         <BackButton onClick={() => navigate('/')} />
         <div className="col">
           <h1 className="h2">Ajouter un repas</h1>
-          <div className="sub">Une photo suffit. Les précisions sont en option.</div>
+          <div className="sub">{textMode ? "Décris ton plat, l'IA fait le calcul." : 'Une photo suffit. Les précisions sont en option.'}</div>
         </div>
       </div>
+
+      <Seg className="lg" options={[['photo', 'Avec photo'], ['texte', 'Sans photo']]} value={draft.mode} onChange={mode => patchDraft({ mode })} />
 
       <input ref={camera} type="file" accept="image/*" capture="environment" hidden onChange={e => { onFile(e.target.files[0]); e.target.value = ''; }} />
       <input ref={gallery} type="file" accept="image/*" hidden onChange={e => { onFile(e.target.files[0]); e.target.value = ''; }} />
 
       <div className="grid-main">
         <div className="col gap12">
-          {draft.photo ? (
+          {textMode ? (
+            <div className="glass col gap12" style={{ padding: 20, borderRadius: 30 }}>
+              <div className="row gap12">
+                <div className="coach-ic"><Icon d={IC.edit} size={17} /></div>
+                <div style={{ fontSize: 19, fontWeight: 600 }}>Qu'est-ce que tu as mangé ?</div>
+              </div>
+              <textarea
+                className="input" style={{ minHeight: 170, fontSize: 16 }} value={draft.ingredients}
+                onChange={e => patchDraft({ ingredients: e.target.value })}
+                placeholder="ex. Une assiette de pâtes bolognaise, environ 120 g de pâtes, avec du parmesan"
+              />
+              <div className="sub" style={{ fontSize: 13 }}>Quantités, cuisson, sauce : plus c'est précis, mieux c'est.</div>
+              <div className="row wrap gap6">
+                {EXAMPLES.map(ex => <button key={ex} className="chip" onClick={() => patchDraft({ ingredients: ex })}>{ex}</button>)}
+              </div>
+            </div>
+          ) : draft.photo ? (
             <div className="photo" style={{ backgroundImage: `url(data:image/jpeg;base64,${draft.photo.ai})` }}>
               <div className="photo-top row gap8">
                 <button className="chip" onClick={() => gallery.current.click()}>Changer</button>
@@ -107,9 +129,11 @@ export default function Add() {
           <label className="field"><span className="field-label">Poids total</span>
             <div className="input-unit"><input className="input" inputMode="numeric" value={draft.weight} onChange={e => patchDraft({ weight: e.target.value.replace(/[^\d]/g, '') })} placeholder="ex. 420" /><span>g</span></div>
           </label>
-          <label className="field"><span className="field-label">Ingrédients</span>
-            <textarea className="input" value={draft.ingredients} onChange={e => patchDraft({ ingredients: e.target.value })} placeholder="ex. 150 g de poulet, riz basmati, un demi avocat, sauce soja" />
-          </label>
+          {!textMode && (
+            <label className="field"><span className="field-label">Ingrédients</span>
+              <textarea className="input" value={draft.ingredients} onChange={e => patchDraft({ ingredients: e.target.value })} placeholder="ex. 150 g de poulet, riz basmati, un demi avocat, sauce soja" />
+            </label>
+          )}
           <div className="sub" style={{ fontSize: 13, lineHeight: 1.4 }}>Plus tu donnes de détails, plus l'estimation est précise.</div>
           <button className="btn btn-primary" onClick={analyze} disabled={loading}>Analyser avec l'IA</button>
           <button className="link" style={{ alignSelf: 'center' }} onClick={manual}>Saisir les valeurs à la main</button>

@@ -68,7 +68,7 @@ export default function Onboarding() {
       {step === 0 ? (
         <>
           <div className="welcome-art glass" style={{ height: 280 }}>
-            <div style={{ position: 'absolute', width: 200, height: 200, borderRadius: '50%', background: 'var(--accent)', filter: 'blur(70px)', opacity: 0.35 }} />
+            <div className='glow' />
             <div className="plate" />
           </div>
           <div className="col gap12">

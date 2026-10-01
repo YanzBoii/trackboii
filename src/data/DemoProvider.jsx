@@ -1,4 +1,4 @@
-// Mode démo local (dev uniquement : VITE_DEMO=1 npm run dev). Données en mémoire, sans Firebase ni IA.
+// Mode démo (npm run demo) : données en mémoire, sans Firebase ni IA. Jamais actif en production.
 import { useMemo, useState } from 'react';
 import { DataContext } from './DataContext.jsx';
 import { addDays, dateKey } from '../lib/dates.js';

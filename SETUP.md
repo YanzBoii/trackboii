@@ -42,7 +42,7 @@ npx netlify dev
 
 Ouvre l'URL affichée (en général <http://localhost:8888>). `netlify dev` lance à la fois l'app et la fonction IA.
 
-Pour voir l'interface sans Firebase ni IA (données fictives) : `npx vite --mode demo`.
+Pour voir l'interface sans Firebase ni IA (données fictives) : `npm run demo`.
 
 ## 4. Mettre en ligne sur Netlify
 

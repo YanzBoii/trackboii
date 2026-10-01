@@ -5,6 +5,7 @@ import { DataProvider } from './data/DataContext.jsx';
 import { UiProvider } from './data/UiContext.jsx';
 import { DEMO, firebaseConfigured } from './firebase.js';
 import App from './App.jsx';
+import '@fontsource-variable/outfit';
 import './styles.css';
 
 const DemoProvider = DEMO ? lazy(() => import('./data/DemoProvider.jsx')) : null;

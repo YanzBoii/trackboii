@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useData } from '../data/DataContext.jsx';
 import { MOMENTS, useUi } from '../data/UiContext.jsx';
 import { IC, Icon, Seg } from './ui.jsx';
@@ -31,7 +32,7 @@ export default function MealSheet({ meal, onClose }) {
     showToast('Enregistré dans tes presets');
   };
 
-  return (
+  return createPortal(
     <div className="overlay" onClick={onClose}>
       <div className="sheet" onClick={e => e.stopPropagation()} role="dialog" aria-label="Modifier le repas">
         <div className="row between">
@@ -55,6 +56,7 @@ export default function MealSheet({ meal, onClose }) {
           <button className="btn btn-ghost btn-sm btn-danger grow" onClick={remove}><Icon d={IC.trash} size={16} />Supprimer</button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
