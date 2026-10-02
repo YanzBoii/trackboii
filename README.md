@@ -36,7 +36,7 @@ Un questionnaire au premier lancement calcule les besoins quotidiens selon l'obj
 
 ## Fonctionnalités
 
-- 📸 **Analyse IA des repas** par photo ou par description, avec indice de confiance
+- 📸 **Analyse IA des repas** par photo ou par description, avec indice de confiance ; hors ligne, le repas est gardé et analysé au retour du réseau
 - ✏️ **Résultat éditable** : changer le poids recalcule kcal et macros au prorata
 - 🎯 **Objectifs personnalisés** (Mifflin-St Jeor + niveau d'activité + rythme choisi), ajustables
 - ⚡ **Presets** pour les repas récurrents, ajoutés en un tap
@@ -94,7 +94,8 @@ npx netlify dev
 Le pas-à-pas complet (création du projet Firebase, clé Gemini, déploiement Netlify) est dans [SETUP.md](SETUP.md).
 
 ```bash
-npm test         # tests unitaires
+npm test           # tests unitaires (logique, cascade IA, validation)
+npm run test:rules # règles Firestore sur l'émulateur (Java 21 requis)
 npm run build    # build de production
 ```
 

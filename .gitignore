@@ -9,3 +9,5 @@ _design
 # Netlify local
 deno.lock
 .claude
+firebase-debug.log
+firestore-debug.log

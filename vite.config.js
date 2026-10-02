@@ -45,5 +45,5 @@ export default defineConfig({
       }
     }
   },
-  test: { environment: 'node' }
+  test: { environment: 'node', exclude: ['tests/**', 'node_modules/**', 'dist*/**'] }
 });

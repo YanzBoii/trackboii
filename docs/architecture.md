@@ -39,10 +39,20 @@ Un seul listener sur les 31 derniers jours de repas alimente les écrans Aujourd
 
 ## Sécurité
 
-- **Règles Firestore** ([`firestore.rules`](../firestore.rules)) : un utilisateur ne lit et n'écrit que sous `users/{son uid}`, et seulement si son email est vérifié.
-- **Fonction `/api/analyze`** : vérifie le Firebase ID token (signature JWKS, issuer, audience, `email_verified`) avant d'appeler Gemini. Personne d'autre ne peut consommer le quota.
+- **Mots de passe** : jamais stockés par l'app. Firebase Auth les hache (scrypt) ; l'app impose 8 caractères avec lettre et chiffre. Vérification d'email obligatoire, réinitialisation et changement par email, suppression du compte après réauthentification.
+- **Règles Firestore** ([`firestore.rules`](../firestore.rules)) : un utilisateur ne lit et n'écrit que sous `users/{son uid}`, et seulement si son email est vérifié. Chaque écriture est validée (champs autorisés, types, bornes, miniature limitée à une image JPEG intégrée de 150 Ko). Couvert par `npm run test:rules`.
+- **Fonction `/api/analyze`** : vérifie le Firebase ID token (signature JWKS, issuer, audience, `email_verified`), contrôle la taille et le format des entrées, limite le nombre d'analyses par utilisateur (Netlify Blobs) et accepte une liste blanche optionnelle `ALLOWED_EMAILS`. Les erreurs renvoyées ne divulguent rien d'interne.
 - **Clé Gemini** : variable d'environnement côté serveur uniquement.
+- **En-têtes HTTP** ([`netlify.toml`](../netlify.toml)) : CSP stricte (aucun script inline), `X-Frame-Options: DENY`, HSTS, `nosniff`, `Referrer-Policy`, `Permissions-Policy`.
+- **Appareil partagé** : la déconnexion efface le cache Firestore local et la file d'attente hors ligne.
+- **Export CSV** : les cellules commençant par `=`, `+`, `-` ou `@` sont neutralisées (pas d'injection de formule dans Excel).
 - La config Firebase côté client est publique par conception ; la sécurité repose sur les règles.
+
+## Hors ligne
+
+- Lecture : cache Firestore persistant (IndexedDB) et coquille de l'app précachée par le service worker.
+- Écriture : optimiste, synchronisée par Firestore au retour du réseau.
+- Analyse : si le réseau ou l'IA manque, le repas (photo comprise) part dans une file d'attente locale ([`usePendingQueue`](../src/data/usePendingQueue.js)) et il est analysé puis ajouté automatiquement, avec un délai croissant entre deux essais.
 
 ## Analyse IA
 
@@ -68,4 +78,5 @@ Protéines 2 g/kg (1,6 en maintien), lipides 28 % des kcal, glucides = reste. Aj
 
 ## Tests
 
-`npm test` (Vitest) couvre la logique pure : calcul des objectifs, dates, agrégats de stats, normalisation de la réponse IA.
+- `npm test` (Vitest) : calcul des objectifs, dates, agrégats de stats, normalisation de la réponse IA, cascade de modèles (budget de temps, disjoncteur) avec un faux Gemini, validation des mots de passe et de l'export CSV.
+- `npm run test:rules` : règles Firestore sur l'émulateur (accès entre comptes, email non vérifié, validation des champs et des miniatures).
