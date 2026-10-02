@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { resetCooldown, runModels } from './analyze.mjs';
+import { resetCooldown, runModels } from './functions/analyze.mjs';
 
 const OK_BODY = { candidates: [{ content: { parts: [{ text: '{"name":"Œufs","weight":120,"ingredients":["œufs"],"kcal":180,"p":14,"c":1,"f":12,"confidence":90,"comment":"ok","isFood":true}' }] } }] };
 
