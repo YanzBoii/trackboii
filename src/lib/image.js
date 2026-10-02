@@ -23,10 +23,10 @@ function toDataUrl(src, max, quality) {
   return canvas.toDataURL('image/jpeg', quality);
 }
 
-/** Retourne { ai: base64 (1024 px) pour l'IA, thumb: dataURL (320 px) à stocker }. */
+/** Retourne { ai: base64 (768 px, ~70 Ko : léger sur une connexion faible) pour l'IA, thumb: dataURL (320 px) à stocker }. */
 export async function preparePhoto(file) {
   const bmp = await loadBitmap(file);
-  const ai = toDataUrl(bmp, 1024, 0.82);
+  const ai = toDataUrl(bmp, 768, 0.8);
   const thumb = toDataUrl(bmp, 320, 0.7);
   bmp.close?.();
   return { ai: ai.split(',')[1], thumb };

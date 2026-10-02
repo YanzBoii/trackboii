@@ -63,7 +63,7 @@ Pour voir l'interface sans Firebase ni IA (données fictives) : `npm run demo`.
 ## Changer de modèle IA
 
 Variable optionnelle `GEMINI_MODELS` (liste séparée par des virgules, essayée dans l'ordre si quota atteint) :
-`GEMINI_MODELS=gemini-3.8-flash,gemini-3.7-flash,gemini-3.5-flash-lite`
+`GEMINI_MODELS=gemini-3.5-flash-lite,gemini-3.1-flash-lite,gemini-3.8-flash`
 
 ## Mettre à jour le site en ligne
 

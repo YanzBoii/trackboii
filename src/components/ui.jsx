@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 export const IC = {
   today: 'M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18zM12 3a9 9 0 0 1 9 9',
   stats: 'M3 3v18h18M18 17V9M13 17V5M8 17v-3',
@@ -50,9 +52,23 @@ export const Bar = ({ pct, className = '', color }) => (
   <div className={`bar ${className}`}><div style={{ width: `${Math.max(0, Math.min(100, pct))}%`, background: color }} /></div>
 );
 
+// Seules les images intégrées (data:image/…) sont affichées : aucune ressource externe ni injection CSS
+const safeImage = src => typeof src === 'string' && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(src);
+
 export const Thumb = ({ src, className = 'thumb', style }) => (
-  <div className={`${className} ph`} style={{ ...style, ...(src ? { backgroundImage: `url(${src})` } : {}) }} />
+  <div className={`${className} ph`} style={{ ...style, ...(safeImage(src) ? { backgroundImage: `url(${src})` } : {}) }} />
 );
+
+export function useOnline() {
+  const [online, setOnline] = useState(() => navigator.onLine);
+  useEffect(() => {
+    const up = () => setOnline(true), down = () => setOnline(false);
+    window.addEventListener('online', up);
+    window.addEventListener('offline', down);
+    return () => { window.removeEventListener('online', up); window.removeEventListener('offline', down); };
+  }, []);
+  return online;
+}
 
 export const fmt = n => Math.round(n || 0).toLocaleString('fr-FR');
 export const macroLine = m => `P ${Math.round(m.p || 0)} g · G ${Math.round(m.c || 0)} g · L ${Math.round(m.f || 0)} g`;

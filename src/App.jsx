@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { DEMO, firebaseConfigured } from './firebase.js';
 import { useData } from './data/DataContext.jsx';
@@ -15,12 +16,33 @@ import Stats from './screens/Stats.jsx';
 import History from './screens/History.jsx';
 import Profile from './screens/Profile.jsx';
 
-const Splash = () => <div className="center-screen"><div className="spinner" style={{ width: 48, height: 48, borderWidth: 5 }} /></div>;
+function Splash() {
+  // Sur un réseau lent, on explique pourquoi ça charge au lieu de laisser un spinner muet
+  const [slow, setSlow] = useState(false);
+  useEffect(() => { const id = setTimeout(() => setSlow(true), 6000); return () => clearTimeout(id); }, []);
+  return (
+    <div className="center-screen"><div className="col gap16" style={{ alignItems: 'center' }}>
+      <div className="spinner" style={{ width: 48, height: 48, borderWidth: 5 }} />
+      {slow && <div className="sub" style={{ maxWidth: 280 }}>{navigator.onLine ? 'Connexion lente, on charge tes données…' : 'Hors ligne : connecte-toi une première fois pour charger tes données.'}</div>}
+    </div></div>
+  );
+}
+
+function LoadError({ message, onRetry, onLogout }) {
+  return (
+    <div className="center-screen"><div className="col gap12" style={{ maxWidth: 340, alignItems: 'center' }}>
+      <div className="h3">{message}</div>
+      <div className="sub">Vérifie ta connexion puis réessaie.</div>
+      <button className="btn btn-primary" style={{ alignSelf: 'stretch' }} onClick={onRetry}>Réessayer</button>
+      <button className="link" style={{ color: 'var(--mute)' }} onClick={onLogout}>Se déconnecter</button>
+    </div></div>
+  );
+}
 
 const BARE = ['/bienvenue', '/plan'];
 
 export default function App() {
-  const { user, verified, profile } = useData() || {};
+  const { user, verified, profile, loadError, retryLoad, logout } = useData() || {};
   const { pathname } = useLocation();
 
   if (!firebaseConfigured && !DEMO) {
@@ -34,6 +56,7 @@ export default function App() {
   if (user === undefined) return <Splash />;
   if (!user) return <Shell bare><Auth /></Shell>;
   if (!verified) return <Shell bare><VerifyEmail /></Shell>;
+  if (loadError) return <LoadError message={loadError} onRetry={retryLoad} onLogout={logout} />;
   if (profile === undefined) return <Splash />;
 
   if (!profile?.onboarded) {

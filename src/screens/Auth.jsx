@@ -6,12 +6,14 @@ import {
 import { auth } from '../firebase.js';
 import { useUi } from '../data/UiContext.jsx';
 import { IC, Icon, Logo, Seg } from '../components/ui.jsx';
+import { passwordProblem } from '../lib/validation.js';
 
 const ERRORS = {
   'auth/invalid-credential': 'Email ou mot de passe incorrect.',
   'auth/invalid-email': 'Adresse email invalide.',
   'auth/email-already-in-use': 'Un compte existe déjà avec cet email.',
-  'auth/weak-password': 'Mot de passe trop court (6 caractères minimum).',
+  'auth/weak-password': 'Mot de passe trop faible : 8 caractères minimum, avec une lettre et un chiffre.',
+  'auth/password-does-not-meet-requirements': 'Mot de passe trop faible : 8 caractères minimum, avec une lettre et un chiffre.',
   'auth/too-many-requests': 'Trop de tentatives, réessaie dans quelques minutes.',
   'auth/network-request-failed': 'Pas de connexion internet.',
   'auth/missing-password': 'Entre ton mot de passe.'
@@ -31,6 +33,7 @@ export default function Auth() {
     e.preventDefault();
     setError('');
     if (mode === 'signup' && !name.trim()) return setError('Dis-nous comment tu t\'appelles.');
+    if (mode === 'signup' && passwordProblem(password)) return setError(`Mot de passe trop faible : ${passwordProblem(password)}.`);
     setBusy(true);
     try {
       if (mode === 'login') {
@@ -91,7 +94,7 @@ export default function Auth() {
           <input className="input" type="email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="toi@exemple.com" />
         </label>
         <label className="field"><span className="field-label">Mot de passe</span>
-          <input className="input" type="password" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} required minLength={6} value={password} onChange={e => setPassword(e.target.value)} placeholder="6 caractères minimum" />
+          <input className="input" type="password" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} required maxLength={128} value={password} onChange={e => setPassword(e.target.value)} placeholder={mode === 'signup' ? '8 caractères, une lettre et un chiffre' : 'Ton mot de passe'} />
         </label>
         {error && <div className="error">{error}</div>}
         <button className="btn btn-primary split" disabled={busy} type="submit">

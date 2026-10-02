@@ -5,6 +5,7 @@ import { MOMENTS, MOMENT_ADD, MOMENT_PHRASE, useUi } from '../data/UiContext.jsx
 import { longToday, momentForNow } from '../lib/dates.js';
 import { sumMeals } from '../lib/stats.js';
 import MealSheet from '../components/MealSheet.jsx';
+import PendingList from '../components/PendingList.jsx';
 import { Bar, IC, Icon, Thumb, fmt, macroLine, pct } from '../components/ui.jsx';
 
 const ORDER = { pdj: 0, dej: 1, col: 2, din: 3 };
@@ -31,7 +32,7 @@ export function usePresetAdder() {
 
 export default function Today() {
   const navigate = useNavigate();
-  const { profile, todayMeals, presets } = useData();
+  const { profile, todayMeals, presets, pending } = useData();
   const addPreset = usePresetAdder();
   const [editing, setEditing] = useState(null);
   const t = profile.targets;
@@ -90,7 +91,8 @@ export default function Today() {
             <div className="h3">Repas du jour</div>
             <button className="link" onClick={() => navigate('/historique')}>Historique</button>
           </div>
-          {meals.length === 0 && <div className="empty">Aucun repas pour l'instant.</div>}
+          <PendingList />
+          {meals.length === 0 && !pending.length && <div className="empty">Aucun repas pour l'instant.</div>}
           {meals.map(m => (
             <button key={m.id} className="meal-row" onClick={() => setEditing(m)}>
               <Thumb src={m.thumb} />

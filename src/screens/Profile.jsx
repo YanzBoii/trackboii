@@ -1,16 +1,26 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../firebase.js';
+import { sendPasswordResetEmail } from 'firebase/auth';
+import { auth, db } from '../firebase.js';
+import DeleteAccountSheet from '../components/DeleteAccountSheet.jsx';
 import { useData } from '../data/DataContext.jsx';
 import { MOMENTS, useUi } from '../data/UiContext.jsx';
 import { goalSummary } from '../lib/goals.js';
+import { csvCell as esc } from '../lib/validation.js';
 import { goalMacros } from './Plan.jsx';
 import { IC, Icon, Seg, fmt } from '../components/ui.jsx';
 
 function GoalsEditor({ targets, onSave, onCancel }) {
   const [v, setV] = useState({ ...targets });
+  const [error, setError] = useState('');
   const fields = [['kcal', 'Calories', 'kcal'], ['p', 'Protéines', 'g'], ['c', 'Glucides', 'g'], ['f', 'Lipides', 'g']];
+  const save = () => {
+    const n = Object.fromEntries(fields.map(([k]) => [k, Number(v[k]) || 0]));
+    if (n.kcal < 800 || n.kcal > 8000) return setError('Les calories doivent être entre 800 et 8000.');
+    if ([n.p, n.c, n.f].some(x => x > 1000)) return setError('Valeur de macro trop élevée.');
+    onSave(n);
+  };
   return (
     <div className="col gap12">
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,minmax(0,1fr))', gap: 10 }}>
@@ -20,9 +30,10 @@ function GoalsEditor({ targets, onSave, onCancel }) {
           </label>
         ))}
       </div>
+      {error && <div className="error">{error}</div>}
       <div className="row gap8">
         <button className="btn btn-ghost btn-sm grow" onClick={onCancel}>Annuler</button>
-        <button className="btn btn-primary btn-sm grow" onClick={() => onSave(Object.fromEntries(fields.map(([k]) => [k, Number(v[k]) || 0])))}>Enregistrer</button>
+        <button className="btn btn-primary btn-sm grow" onClick={save}>Enregistrer</button>
       </div>
     </div>
   );
@@ -41,13 +52,22 @@ export default function Profile() {
   const { theme, setTheme, showToast } = useUi();
   const [editing, setEditing] = useState(false);
   const [editingName, setEditingName] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const isPassword = user.providerData.some(p => p.providerId === 'password');
+  const resetPassword = async () => {
+    try {
+      await sendPasswordResetEmail(auth, user.email);
+      showToast('Email envoyé pour changer ton mot de passe');
+    } catch {
+      showToast('Envoi impossible, réessaie');
+    }
+  };
   const t = profile.targets;
 
   const exportCsv = async () => {
     try {
       const snap = await getDocs(collection(db, 'users', user.uid, 'meals'));
       const rows = snap.docs.map(d => d.data()).sort((a, b) => a.date.localeCompare(b.date));
-      const esc = s => `"${String(s ?? '').replace(/"/g, '""')}"`;
       const csv = ['date;moment;plat;kcal;proteines_g;glucides_g;lipides_g;poids_g;ingredients;source']
         .concat(rows.map(m => [m.date, MOMENTS[m.moment] || '', esc(m.name), m.kcal, m.p, m.c, m.f, m.weight || '', esc((m.ingredients || []).join(', ')), m.source || ''].join(';')))
         .join('\n');
@@ -97,9 +117,12 @@ export default function Profile() {
           <div className="settings-row"><span>Compte</span><span className="sub" style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</span></div>
           <div className="settings-row"><span>Unités</span><span className="sub">Métrique (kg, g)</span></div>
           <button className="settings-row" style={{ cursor: 'pointer' }} onClick={exportCsv}><span>Exporter mes données</span><span className="mute2"><Icon d={IC.chevron} size={18} /></span></button>
+          {isPassword && <button className="settings-row" style={{ cursor: 'pointer' }} onClick={resetPassword}><span>Changer mon mot de passe</span><span className="mute2"><Icon d={IC.chevron} size={18} /></span></button>}
           <button className="settings-row sub" style={{ cursor: 'pointer', color: 'var(--mute)' }} onClick={logout}>Se déconnecter</button>
+          <button className="settings-row" style={{ cursor: 'pointer', color: 'var(--danger)', fontSize: 14 }} onClick={() => setDeleting(true)}>Supprimer mon compte</button>
         </div>
       </div>
+      {deleting && <DeleteAccountSheet onClose={() => setDeleting(false)} />}
     </div>
   );
 }

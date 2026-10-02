@@ -4,6 +4,7 @@ import { useData } from '../data/DataContext.jsx';
 import { MOMENTS, useUi } from '../data/UiContext.jsx';
 import { preparePhoto } from '../lib/image.js';
 import { usePresetAdder } from './Today.jsx';
+import { queueDraft } from './Analyzing.jsx';
 import { BackButton, IC, Icon, Seg, fmt } from '../components/ui.jsx';
 
 const EXAMPLES = ['2 œufs au plat et 2 tranches de jambon', 'Un kebab frites', 'Bol de céréales avec du lait'];
@@ -12,7 +13,7 @@ export const EMPTY_RESULT = { name: '', weight: 0, ingredients: [], kcal: 0, p: 
 
 export default function Add() {
   const navigate = useNavigate();
-  const { presets } = useData();
+  const { presets, queueMeal } = useData();
   const { draft, patchDraft, resetDraft, showToast } = useUi();
   const addPreset = usePresetAdder();
   const camera = useRef();
@@ -38,6 +39,15 @@ export default function Add() {
   const analyze = () => {
     if (!canAnalyze) return showToast(textMode ? 'Décris ce que tu as mangé' : 'Ajoute une photo ou décris ton plat');
     if (textMode && draft.photo) patchDraft({ photo: null });
+    if (!navigator.onLine) {
+      // Hors ligne : pas la peine d'attendre, le repas part directement en file d'attente
+      queueDraft(draft, queueMeal).then(() => {
+        showToast('Hors ligne : ton repas sera analysé au retour du réseau');
+        resetDraft();
+        navigate('/');
+      });
+      return;
+    }
     navigate('/analyse');
   };
   const manual = () => {

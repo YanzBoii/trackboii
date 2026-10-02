@@ -23,10 +23,11 @@ export default function DemoProvider({ children }) {
   const ok = () => Promise.resolve();
 
   const value = useMemo(() => ({
-    user: { uid: 'demo', email: 'demo@trackboii.app', getIdToken: async () => '' },
+    user: { uid: 'demo', email: 'demo@trackboii.app', providerData: [{ providerId: 'password' }], getIdToken: async () => '' },
     // ?verify dans l'URL affiche l'écran de vérification d'email
     verified: !location.search.includes('verify'), checkVerified: async () => false,
-    profile, meals, presets, weights, today,
+    profile, meals, presets, weights, today, loadError: null, retryLoad() {},
+    pending: [], queueMeal: async () => {}, retryPending() {}, removePending() {}, clearPending: async () => {}, deleteAccount: async () => {},
     todayMeals: meals.filter(m => m.date === today),
     saveProfile: d => { setProfile(p => ({ ...p, ...d })); return ok(); },
     addMeal: m => { setMeals(s => [...s, { id: String(Date.now()), date: today, ...m }]); return ok(); },

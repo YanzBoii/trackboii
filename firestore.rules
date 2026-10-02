@@ -1,10 +1,77 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // Seul le propriétaire, avec un email vérifié, accède à ses données
+    function isOwner(uid) {
+      return request.auth != null
+        && request.auth.uid == uid
+        && request.auth.token.email_verified == true;
+    }
+
+    function num(v, max) { return v is number && v >= 0 && v <= max; }
+    function str(v, max) { return v is string && v.size() <= max; }
+    function isDate(v) { return v is string && v.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$'); }
+    // Miniature : image JPEG intégrée, ~25 Ko en pratique, 150 Ko max
+    function thumbOk(d) {
+      return !('thumb' in d) || d.thumb == null
+        || (d.thumb is string && d.thumb.size() < 150000 && d.thumb.matches('^data:image/jpeg;base64,[A-Za-z0-9+/=]+$'));
+    }
+    function nutritionOk(d) {
+      return str(d.name, 120) && num(d.kcal, 10000) && num(d.p, 1000) && num(d.c, 1000) && num(d.f, 1000)
+        && (!('weight' in d) || num(d.weight, 5000))
+        && (!('ingredients' in d) || (d.ingredients is list && d.ingredients.size() <= 30))
+        && thumbOk(d);
+    }
+
+    function profileOk(d) {
+      return d.keys().hasOnly(['name', 'sex', 'age', 'height', 'weight', 'goal', 'activity', 'pace', 'targets', 'onboarded'])
+        && (!('name' in d) || str(d.name, 40))
+        && (!('sex' in d) || d.sex in ['h', 'f', 'x'])
+        && (!('age' in d) || num(d.age, 120))
+        && (!('height' in d) || num(d.height, 250))
+        && (!('weight' in d) || num(d.weight, 400))
+        && (!('goal' in d) || d.goal in ['perte', 'maintien', 'muscle'])
+        && (!('activity' in d) || d.activity in ['sedentaire', 'leger', 'modere', 'intense'])
+        && (!('pace' in d) || d.pace in ['doux', 'reco', 'rapide'])
+        && (!('onboarded' in d) || d.onboarded is bool)
+        && (!('targets' in d) || (d.targets is map
+              && d.targets.keys().hasOnly(['kcal', 'p', 'c', 'f'])
+              && num(d.targets.kcal, 10000) && num(d.targets.p, 1000) && num(d.targets.c, 1000) && num(d.targets.f, 1000)));
+    }
+
+    function mealOk(d) {
+      return d.keys().hasOnly(['date', 'moment', 'name', 'kcal', 'p', 'c', 'f', 'weight', 'ingredients', 'thumb', 'source', 'createdAt'])
+        && isDate(d.date)
+        && d.moment in ['pdj', 'dej', 'din', 'col']
+        && (!('source' in d) || d.source in ['IA', 'Preset', 'Manuel'])
+        && nutritionOk(d);
+    }
+
+    function presetOk(d) {
+      return d.keys().hasOnly(['name', 'items', 'kcal', 'p', 'c', 'f', 'weight', 'ingredients', 'thumb', 'createdAt'])
+        && (!('items' in d) || str(d.items, 500))
+        && nutritionOk(d);
+    }
+
     match /users/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid && request.auth.token.email_verified == true;
-      match /{document=**} {
-        allow read, write: if request.auth != null && request.auth.uid == uid && request.auth.token.email_verified == true;
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid) && profileOk(request.resource.data);
+
+      match /meals/{id} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid) && mealOk(request.resource.data);
+      }
+      match /presets/{id} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid) && presetOk(request.resource.data);
+      }
+      match /weights/{day} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && request.resource.data.keys().hasOnly(['date', 'kg'])
+          && request.resource.data.date == day && isDate(day)
+          && request.resource.data.kg is number && request.resource.data.kg >= 20 && request.resource.data.kg <= 400;
       }
     }
   }

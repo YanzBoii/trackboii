@@ -129,6 +129,7 @@ textarea.input{min-height:96px;resize:vertical}
 .macro{padding:14px;border-radius:20px;display:flex;flex-direction:column;gap:6px}
 .meal-row{display:flex;align-items:center;gap:12px;padding:10px;border-radius:20px;background:var(--glass);border:1px solid var(--glass-b);cursor:pointer;text-align:left;width:100%;color:var(--ink)}
 .meal-row:hover{border-color:var(--accent)}
+.meal-row.pending{border-style:dashed;border-color:var(--accent)}
 .thumb{width:46px;height:46px;border-radius:15px;flex:none}
 .coach-ic{width:34px;height:34px;border-radius:50%;flex:none;background:var(--accent-soft);display:grid;place-items:center;color:var(--accent)}
 .empty{padding:22px;border-radius:20px;text-align:center;font-size:14px;color:var(--mute);background:var(--glass);border:1px solid var(--glass-b)}
@@ -199,6 +200,8 @@ textarea.input{min-height:96px;resize:vertical}
 
 /* ---------- divers ---------- */
 .toast{position:absolute;top:calc(24px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:30;padding:12px 20px;border-radius:99px;background:var(--glass-strong);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border:1px solid var(--glass-b);box-shadow:var(--shadow);font-size:14px;font-weight:500;white-space:nowrap;display:flex;align-items:center;gap:8px;animation:tbfade .2s;max-width:calc(100vw - 32px);overflow:hidden;text-overflow:ellipsis}
+.toast.offline{animation:none;font-size:13px;padding:9px 16px;color:var(--mute)}
+.toast.offline i{background:var(--warn)}
 .toast i{width:8px;height:8px;border-radius:50%;background:var(--accent);flex:none}
 .overlay{position:fixed;inset:0;z-index:50;background:rgba(10,15,30,.35);display:flex;align-items:flex-end;justify-content:center}
 @media (min-width:860px){.overlay{align-items:center}}

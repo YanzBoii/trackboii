@@ -3,7 +3,7 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useData } from '../data/DataContext.jsx';
 import { useUi } from '../data/UiContext.jsx';
 import { sumMeals } from '../lib/stats.js';
-import { Bar, IC, Icon, Logo, fmt, pct } from './ui.jsx';
+import { Bar, IC, Icon, Logo, fmt, pct, useOnline } from './ui.jsx';
 
 const NAV = [['/', 'today', "Aujourd'hui"], ['/stats', 'stats', 'Statistiques'], ['/presets', 'presets', 'Presets'], ['/historique', 'history', 'Historique'], ['/profil', 'profile', 'Profil']];
 const TABS_L = [['/', 'today', "Aujourd'hui"], ['/stats', 'stats', 'Statistiques']];
@@ -54,6 +54,7 @@ function TabBar() {
 export default function Shell({ children, bare = false }) {
   const { pathname } = useLocation();
   const { toast } = useUi();
+  const online = useOnline();
   const scroll = useRef();
   const withTab = !bare && TAB_PATHS.includes(pathname);
 
@@ -69,6 +70,7 @@ export default function Shell({ children, bare = false }) {
         </main>
       </div>
       {withTab && <TabBar />}
+      {!online && !toast && <div className="toast offline" role="status"><i />Hors ligne · tout est gardé sur ton téléphone</div>}
       {toast && <div className="toast" role="status"><i />{toast}</div>}
     </div>
   );

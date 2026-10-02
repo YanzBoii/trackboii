@@ -62,3 +62,17 @@ describe('nutrition', () => {
     expect(buildPrompt({ weight: '420', ingredients: 'poulet', hasImage: true })).toContain('420 g');
   });
 });
+
+describe('validation', async () => {
+  const { passwordProblem, csvCell } = await import('./validation.js');
+  it('refuse les mots de passe faibles', () => {
+    expect(passwordProblem('1234567')).toBeTruthy();
+    expect(passwordProblem('12345678')).toBeTruthy();
+    expect(passwordProblem('motdepasse')).toBeTruthy();
+    expect(passwordProblem('éclair2026')).toBeNull();
+  });
+  it('neutralise les formules dans le CSV', () => {
+    expect(csvCell('=HYPERLINK("x")')).toBe('"\'=HYPERLINK(""x"")"');
+    expect(csvCell('Pâtes')).toBe('"Pâtes"');
+  });
+});
